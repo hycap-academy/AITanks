@@ -21,13 +21,13 @@ class AI:
                 self.robot.shieldOn()
             else:
                 if dis < 300:
-                    if self.robot.x <=10 and self.robot.y > 530 and self.robot.direction>0:
+                    if self.robot.x() <=10 and self.robot.y() > 530 and self.robot.direction>0:
                         self.robot.turnRight(10)
-                    elif self.robot.x <=20 and self.robot.y <=10 and self.robot.direction > -90:
+                    elif self.robot.x() <=20 and self.robot.y() <=10 and self.robot.direction > -90:
                         self.robot.turnRight(10)
-                    elif  self.robot.x > 540  and self.robot.y < 20 and self.robot.direction > -180:
+                    elif  self.robot.x() > 540  and self.robot.y() < 20 and self.robot.direction > -180:
                         self.robot.turnRight(10)
-                    elif self.robot.x > 530 and self.robot.y > 530  and (self.robot.direction > 90 or self.robot.direction== -180):
+                    elif self.robot.x() > 530 and self.robot.y() > 530  and (self.robot.direction > 90 or self.robot.direction== -180):
                         self.robot.turnRight(10)
                     else:
                         self.robot.moveForward(10)

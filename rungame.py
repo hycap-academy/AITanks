@@ -15,7 +15,7 @@ DISPLAY_HEIGHT=800
 TILESIZE=50
 LINEWIDTH = 5
 PROJECTILE_VELOCITY=20
-PROJECTILE_DAMAGE=1
+PROJECTILE_DAMAGE=randint(2,4)
 ENERGY_CHARGE_PER_TURN=5
 
 BLACK=(0,0,0)
@@ -45,8 +45,8 @@ class object():
         self.initx = coordx
         self.inity = coordy
         self.initdir = direction
-        self.x = coordx
-        self.y = coordy
+        self._x = coordx
+        self._y = coordy
         self.direction=direction
         self.OrigSurfImg=sImg
         # direction: 0=north, 1=west, 2=south, 3=east
@@ -66,13 +66,19 @@ class object():
         self.destinationy=0
 
     def getRect(self):
-        return pygame.Rect(self.x, self.y, self.surfImg.get_width(), self.surfImg.get_height())
+        return pygame.Rect(self._x, self._y, self.surfImg.get_width(), self.surfImg.get_height())
+    
+    def x(self):
+        return self._x
+
+    def y(self):
+        return self._y
     
     def ram(self):
         global objects
         if self.energy >= 10:
-            self.x += (-1)*10 * math.sin(math.radians(self.direction))
-            self.y += (-1)*10 * math.cos(math.radians(self.direction)) 
+            self._x += (-1)*10 * math.sin(math.radians(self.direction))
+            self._y += (-1)*10 * math.cos(math.radians(self.direction)) 
 
             for o in objects:
                 if o.type==1 and o.uid!=self.uid and self.getRect().colliderect(o.getRect()):
@@ -90,8 +96,8 @@ class object():
             elif speed < -10:
                 speed = -10
 
-            self.x += (-1)*speed * math.sin(math.radians(self.direction))
-            self.y += (-1)*speed * math.cos(math.radians(self.direction)) 
+            self._x += (-1)*speed * math.sin(math.radians(self.direction))
+            self._y += (-1)*speed * math.cos(math.radians(self.direction)) 
 
             self.bordercheck(self)
             
@@ -101,14 +107,14 @@ class object():
             print("Not enough energy to moveForward")
 
     def bordercheck(self, obj):
-            if obj.x < 0:
-                obj.x=0
-            if obj.y < 0:
-                obj.y=0
-            if obj.x > 550:
-                obj.x = 550
-            if obj.y > 550:
-                obj.y = 550
+            if obj.x() < 0:
+                obj._x=0
+            if obj.y() < 0:
+                obj._y=0
+            if obj.x() > 550:
+                obj._x = 550
+            if obj.y() > 550:
+                obj._y = 550
 
 
 
@@ -140,7 +146,7 @@ class object():
     def fireProjectile(self, direction):
         if self.energy >= 10:
             ai1 = importlib.import_module("projectile")
-            o = object("projectile", self.x,self.y, self.direction+direction, getSurfImg("projectile.png", 10, 10), ai1.AI(), 2)
+            o = object("projectile", self._x,self._y, self.direction+direction, getSurfImg("projectile.png", 10, 10), ai1.AI(), 2)
             o.parentuid=self.uid
             objects.append(o) 
             pygame.mixer.Sound.play(projectile_sound)
@@ -151,10 +157,10 @@ class object():
     def dropBomb(self, obj):
         if self.energy >=30:
             ai1 = importlib.import_module("bomb")
-            o = object("bomb", self.x, self.y, self.getDirection(obj)+self.direction, getSurfImg("bomb.png", 30, 30), ai1.AI(), 4)
+            o = object("bomb", self._x, self._y, self.getDirection(obj)+self.direction, getSurfImg("bomb.png", 30, 30), ai1.AI(), 4)
             o.parentuid=self.uid
-            o.destinationx=obj.x
-            o.destinationy=obj.y
+            o.destinationx=obj.x()
+            o.destinationy=obj.y()
 
             dis = self.getDistance(obj)
             o.velocity = dis/60
@@ -164,16 +170,16 @@ class object():
             self.energy -= 40
 
     def repair(self, amount=3):
-        if self.energy >= amount:
+        if self.energy >= amount*4:
             self.health+= amount
-            self.energy -= amount
+            self.energy -= amount*4
         else:
             print("Not enough energy to repair ", amount, " points.")
     
     def shieldOn(self):
         if self.energy >=50 and self.shield==False:
             ai1 = importlib.import_module("shield")
-            o = object("shield", self.x-10,self.y-10, self.direction, getSurfImg("shield.png", 70, 70), ai1.AI(), 3)
+            o = object("shield", self._x-10,self._y-10, self.direction, getSurfImg("shield.png", 70, 70), ai1.AI(), 3)
             o.parentuid=self.uid
             objects.append(o) 
             self.shield=True
@@ -204,14 +210,14 @@ class object():
         closestEnemy=None
         for o in objects:
             if (self.uid!=o.uid and o.type==1):
-                dis = math.sqrt((self.x-o.x)**2 + (self.y-o.y)**2)
+                dis = math.sqrt((self._x-o.x())**2 + (self._y-o.y())**2)
                 if  dis < closestDistance:
                     closestEnemy=o
                     closestDistance = dis
         return closestEnemy
 
     def getDirection(self, o):
-        objdir = (-1)*(math.degrees(math.atan2((o.y-self.y), (o.x-self.x)))+90)
+        objdir = (-1)*(math.degrees(math.atan2((o.y()-self._y), (o.x()-self._x)))+90)
         #self.direction = self.direction % 360
         self.direction = self.normalizeDir(self.direction)
         #objdir = self.normalizeDir(objdir)
@@ -234,32 +240,47 @@ class object():
         return dir
 
     def getDistance(self, o):
-        dis = math.sqrt((self.x-o.x)**2 + (self.y-o.y)**2)
+        dis = math.sqrt((self._x-o.x())**2 + (self._y-o.y())**2)
         return dis
 
 
     def projMoveForward(self):
         global objects
-        self.x += (-1)*PROJECTILE_VELOCITY * math.sin(math.radians(self.direction))
-        self.y += (-1)*PROJECTILE_VELOCITY * math.cos(math.radians(self.direction)) 
+        self._x += (-1)*PROJECTILE_VELOCITY * math.sin(math.radians(self.direction))
+        self._y += (-1)*PROJECTILE_VELOCITY * math.cos(math.radians(self.direction)) 
+
+        enemy = None
 
         for o in objects:
             if o.type==1 and self.parentuid!=o.uid and self.getRect().colliderect(o.getRect()):
-                o.health -= PROJECTILE_DAMAGE
-                objects.remove(self)
+                enemy = o
+            elif o.type==1 and self.parentuid==o.uid:
 
-        if self.x < 0 or self.x > 600:
+                if self.getDistance(o) > 250:
+                    objects.remove(self)
+                    enemy=None
+                    break
+            elif o.type==3 and self.getRect().colliderect(o.getRect()):
+                enemy=None
+                objects.remove(self)
+                break
+            
+        if enemy!=None:
+            enemy.health -= PROJECTILE_DAMAGE
             objects.remove(self)
-        elif self.y < 0 or self.y > 600:
+
+        if self._x < 0 or self._x > 600:
+            objects.remove(self)
+        elif self._y < 0 or self._y > 600:
             objects.remove(self)
 
     def bombMoveForward(self):
         global objects
 
-        self.x += (-1)*self.velocity * math.sin(math.radians(self.direction))
-        self.y += (-1)*self.velocity * math.cos(math.radians(self.direction)) 
+        self._x += (-1)*self.velocity * math.sin(math.radians(self.direction))
+        self._y += (-1)*self.velocity * math.cos(math.radians(self.direction)) 
 
-        if abs(self.x-self.destinationx) < 5 and abs(self.y-self.destinationy) < 5:
+        if abs(self._x-self.destinationx) < 5 and abs(self._y-self.destinationy) < 5:
             for o in objects:
                 if o.type==1 and self.parentuid!=o.uid and self.getRect().colliderect(o.getRect()):
                     o.health -= randint(5,20)
@@ -280,8 +301,8 @@ class object():
                     objects.remove(self)
                     o.shield=False
                 else:                     
-                    self.x = o.x-10
-                    self.y = o.y-10
+                    self._x = o.x()-10
+                    self._y = o.y()-10
                     o.energy -= 3
             elif o.type==2 and self.getRect().colliderect(o.getRect()):
                 objects.remove(o)
@@ -449,25 +470,32 @@ def drawBattlefieldPygame():
 
     #Objects
     numOfPlayers=0
+    numOfAlivePlayers = 0
     for o in objects:
         if o.type==1:
             #Draw the robot's health bars
             text = font.render(o.name, True, WHITE) 
+            if o.energy > 0:
+                screen.blit(smallfont.render("Health", True, BLACK), pygame.Rect(600,22+ 45*numOfPlayers, 195, 10))
+                pygame.draw.rect(screen,(255,255,0),((600,34+ 45*numOfPlayers),(int(o.energy*195/100.0),10)))
+
             if o.health >0:
                 screen.blit(text, pygame.Rect(600,4+ 45*numOfPlayers, 195, 10))
                 pygame.draw.rect(screen,(0,255,0),((600,22+ 45*numOfPlayers),(int(o.health*195/100.0),10)))
                 screen.blit(o.surfImg, o.getRect())
-            else: 
-                state="win"
+                numOfAlivePlayers+=1
+            else:
+                objects.remove(o)
+                
             
-            if o.energy > 0:
-                screen.blit(smallfont.render("Health", True, BLACK), pygame.Rect(600,22+ 45*numOfPlayers, 195, 10))
-                pygame.draw.rect(screen,(255,255,0),((600,34+ 45*numOfPlayers),(int(o.energy*195/100.0),10)))
+
             screen.blit(smallfont.render("Energy", True, BLACK), pygame.Rect(600,34+ 45*numOfPlayers, 195, 10))
             numOfPlayers+=1
         elif o.type==2 or o.type==3 or o.type==4:
             screen.blit(o.surfImg, o.getRect())
 
+    if numOfAlivePlayers==1:
+        state="win"
 
 
     rectw = 600
@@ -570,6 +598,8 @@ while True:
                 else:
                     if o.type==1:
                         o.energy+=ENERGY_CHARGE_PER_TURN
+                        if o.energy > 100:
+                            o.energy = 100
                         o.ai.turn()
                     else:
                         o.ai.turn()
