@@ -3,15 +3,19 @@ import time
 import math
 import importlib
 import uuid
+import os
 
 from random import randint
 from os import listdir
 from os.path import isfile
 
+
 from pygame.locals import *
 
-DISPLAY_WIDTH=800
-DISPLAY_HEIGHT=800
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+
+DISPLAY_WIDTH=600
+DISPLAY_HEIGHT=600
 TILESIZE=50
 LINEWIDTH = 5
 PROJECTILE_VELOCITY=20
