@@ -19,7 +19,7 @@ class AI:
             if self.robot.x() <=20 and self.robot.direction > -90:
                 self.robot.turnRight(5)
             elif  self.robot.x() > 540 and self.robot.direction < 90:
-                self.robot.turnleft(5)
+                self.robot.turnLeft(5)
             else:
                 self.robot.moveForward(5)
 
