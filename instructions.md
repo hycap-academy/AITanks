@@ -38,14 +38,16 @@ self.robot.moveForward(speed)|moves forward or backward.  Speed can be between -
 ### Get Information
 |Syntax|Description|Energy Required|
 |------|-----------|---------------|
-|enemy = self.robot.findClosestEnemy| returns your opponent as an object.|Energy: Does not take any energy|
-|dir = self.robot.getDirection(enemy) | tells you the relative direction of an object.  If an enemy is at your 9 o'clock, you would get 90. If your enemy is at 3 o'clock, you would get back -90|Does not take any energy|
-|dis = self.robot.getDistance(enemy) | tells you how far away your enemy is.  The board is 600x600 | Does not take any energy|
-|self.robot.x() | tells you x coordinate of your robot. The board is 600x600 | Does not take any energy|
-|self.robot.y() | tells you y coordinate of your robot. The board is 600x600 | Does not take any energy|
-|self.robot.direction | tells you direction of your robot in degrees.  0 is North.  90 is facing West.  -90 is Facing East | Does not take any energy|
-|self.robot.energy | tells you how much energy your robot has| Does not take any energy|
-|self.robot.health | tells you how much health your robot has| Does not take any energy|
+|enemy = self.robot.findClosestEnemy  (object)| returns your opponent as an object.|Energy: Does not take any energy|
+|dir = self.robot.getDirection(enemy)  (int) | tells you the relative direction of an object.  If an enemy is at your 9 o'clock, you would get 90. If your enemy is at 3 o'clock, you would get back -90|Does not take any energy|
+|dis = self.robot.getDistance(enemy)  (int) | tells you how far away your enemy is.  The board is 600x600 | Does not take any energy|
+|self.robot.x() (int 0-600)| tells you x coordinate of your robot. The board is 600x600 | Does not take any energy|
+|self.robot.y() (int 0-600)| tells you y coordinate of your robot. The board is 600x600 | Does not take any energy|
+|self.robot.direction int | tells you direction of your robot in degrees.  0 is North.  90 is facing West.  -90 is Facing East | Does not take any energy|
+|self.robot.energy (int 1-100) | tells you how much energy your robot has| Does not take any energy|
+|self.robot.health (int 1-100) | tells you how much health your robot has| Does not take any energy|
+
+|self.robot.shield (True/False) | tells you if the shield is on or not| Does not take any energy|
 
 
 ### Attack
