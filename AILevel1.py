@@ -5,7 +5,7 @@ if "rungame" not in inspect.getmodule(inspect.stack()[0])._filesbymodname["__mai
 class AI:
     def __init__(self):
         print(__name__ + " AI Loaded")
-        self.image = "DozerRed.png"
+        self.image = "tankred1.png"
 
     def turn(self):
         
@@ -13,6 +13,7 @@ class AI:
         enemy = self.robot.findClosestEnemy()
         dis = self.robot.getDistance(enemy)
         if enemy != None:
-            dir = self.robot.getDirection(enemy)
-            self.robot.fireProjectile(dir)
+            if self.robot.energy > 50:
+                self.robot.dropBomb(enemy)
+                self.robot.moveForward(10)
             

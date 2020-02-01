@@ -17,6 +17,7 @@ LINEWIDTH = 5
 PROJECTILE_VELOCITY=20
 PROJECTILE_DAMAGE=randint(2,4)
 ENERGY_CHARGE_PER_TURN=5
+GAMETIMEOUT=60*5
 
 BLACK=(0,0,0)
 DARK_GRAY = (50,50,50)
@@ -37,6 +38,7 @@ tank_sound = pygame.mixer.Sound("tank.wav")
 bomb_sound = pygame.mixer.Sound("bomb.wav")
 clock = pygame.time.Clock()
 intro=True
+StartTime = 0
 
 
 class object():
@@ -402,8 +404,11 @@ def GoToIntro():
     intro=True
 
 def startGame():
-    global intro, ChosenPlayers, objects
+    global intro, ChosenPlayers, objects, StartTime
     intro=False
+    
+    StartTime = time.time()
+    print(StartTime)
 
     numPlayer = 0
     for player in ChosenPlayers:
@@ -455,7 +460,7 @@ def getSurfImg(imgFile, sizex, sizey):
 
 def drawBattlefieldPygame():
     """draws the battlefield with Pygame"""
-    global state, redsquares, bluesquares, bot1img, bot2img, namefont, textfont, ai1name, ai2name, uwimg, walls, rbulimg, bbulimg, textBlob
+    global state, redsquares, bluesquares, bot1img, bot2img, namefont, textfont, ai1name, ai2name, uwimg, walls, rbulimg, bbulimg, textBlob, StartTime
 
     #Get the display surface
     screen = pygame.display.get_surface()
@@ -471,6 +476,8 @@ def drawBattlefieldPygame():
     #Objects
     numOfPlayers=0
     numOfAlivePlayers = 0
+    winner = ""
+    highestpoints=0
     for o in objects:
         if o.type==1:
             #Draw the robot's health bars
@@ -484,6 +491,9 @@ def drawBattlefieldPygame():
                 pygame.draw.rect(screen,(0,255,0),((600,22+ 45*numOfPlayers),(int(o.health*195/100.0),10)))
                 screen.blit(o.surfImg, o.getRect())
                 numOfAlivePlayers+=1
+                if o.health+o.energy > highestpoints:
+                    highestpoints=o.health+o.energy
+                    winner = o.name
             else:
                 objects.remove(o)
                 
@@ -497,6 +507,11 @@ def drawBattlefieldPygame():
     if numOfAlivePlayers==1:
         state="win"
 
+    elif numOfAlivePlayers==0:
+        state="tie"
+    elif time.time()-StartTime > GAMETIMEOUT:
+        state="tie"
+
 
     rectw = 600
     recth = 200
@@ -509,12 +524,21 @@ def drawBattlefieldPygame():
     BUTTON2_X = BUTTON1_X + BUTTON_WIDTH + 20
     BUTTON2_Y = BUTTON1_Y
 
-    if state=="win":
+    if state=="win" or state=="tie":
         sInstructions = pygame.Surface((rectw, recth))
         sInstructions.fill(DARK_GRAY)
         rectInstructions=pygame.Rect(NOTE_X, NOTE_Y, rectw, recth)
         screen.blit(sInstructions, rectInstructions)
-        drawText(screen, "Game Over!", (255,255,255), rectInstructions, instructionFont, aa=True, bkg=(255,255,255))
+
+        strMsg = "Game Over!"
+        strMsg += " " + winner + " wins.\n"
+        
+        for o in objects:
+            if o.type==1:
+                strMsg += o.name + " energy:" + str(o.energy) + " health:" + str(o.health) + " total:" + str(o.health+o.energy) + "\n"
+
+
+        drawText(screen, strMsg, (255,255,255), rectInstructions, instructionFont, aa=True, bkg=(255,255,255))
         button("Play Again",BUTTON1_X, BUTTON1_Y,BUTTON_WIDTH,BUTTON_HEIGHT,GREEN,BRIGHT_GREEN,action=GoToIntro)
     
     pygame.display.update()
@@ -594,6 +618,8 @@ while True:
             
             try: # Prevent PythonBattle from crashing when AI code fails
                 if state == "win":
+                    break
+                elif state=="tie":
                     break
                 else:
                     if o.type==1:
