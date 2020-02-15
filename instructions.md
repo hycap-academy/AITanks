@@ -11,7 +11,11 @@ How to get started
 ------------------
 The best way to get started is to run the game using Visual Studio Code with the Python extension installed.  Here is a quick How-To.
 
-[Install and Setup VS Code for Python](./VSCode_Setup.md)
+1. [Install and Setup VS Code for Python](./VSCode_Setup.md)
+2. Make a copy of AILevel0.py and rename it to using your name:  e.g.  AIJeff1.py  (Please note that all AI Tank files need to start with the prefix "AI".  
+3. write code under the def turn(self): section.  That is the only section that you can change.  See the documentation below for how to access the methods and properties.
+4. Peek at the other provided AI files to see how they work.  
+5. Create your own AI.
 
 ## Downloading
 
