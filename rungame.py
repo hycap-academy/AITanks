@@ -12,12 +12,16 @@ from pygame.locals import *
 
 DISPLAY_WIDTH=800
 DISPLAY_HEIGHT=800
+MAP_WIDTH=600
+MAP_HEIGHT=600
 TILESIZE=50
 LINEWIDTH = 5
 PROJECTILE_VELOCITY=20
 PROJECTILE_DAMAGE=randint(2,4)
 ENERGY_CHARGE_PER_TURN=5
 GAMETIMEOUT=60*5
+
+
 
 BLACK=(0,0,0)
 DARK_GRAY = (50,50,50)
@@ -39,10 +43,23 @@ bomb_sound = pygame.mixer.Sound("bomb.wav")
 clock = pygame.time.Clock()
 intro=True
 StartTime = 0
+tiles = []
+
+
+class tile():
+    def __init__(self, x, y):
+        self._x = x
+        self._y = y
+        self.coordx = LINEWIDTH+int(x*(TILESIZE+LINEWIDTH*2))
+        self.coordy = LINEWIDTH+int(y*(TILESIZE+LINEWIDTH*2))
+        self.rect = pygame.Rect(self.coordx, self.coordy, TILESIZE, TILESIZE)
+        self.owner = ""
+        self.color = (0,0,0)
+
 
 
 class object():
-    def __init__(self, name, coordx, coordy, direction, sImg, ai, objType, subType=0):
+    def __init__(self, name, coordx, coordy, direction, sImg, ai, objType, subType=0, tilecolor=""):
         self.name = name
         self.initx = coordx
         self.inity = coordy
@@ -66,6 +83,7 @@ class object():
         self.velocity=0
         self.destinationx=0
         self.destinationy=0
+        self.tilecolor = tilecolor
 
     def getRect(self):
         return pygame.Rect(self._x, self._y, self.surfImg.get_width(), self.surfImg.get_height())
@@ -105,8 +123,20 @@ class object():
             
             pygame.mixer.Sound.play(tank_sound)
             self.energy-= math.ceil(abs(speed)/2)
+            self.checkTileCollision(self)
+
+
         else:
             print("Not enough energy to moveForward")
+
+
+    def checkTileCollision(self, tank):
+        global tiles
+        for t in tiles:
+            if tank.getRect().colliderect(t.rect):
+                t.color=tank.tilecolor
+                t.owner=tank.name
+
 
     def bordercheck(self, obj):
             if obj.x() < 0:
@@ -399,9 +429,10 @@ def button(msg,x,y,w,h,ic,ac,action=None, param1=None, param2=None):
     screen.blit(TextSurf, TextRect)
 
 def GoToIntro():
-    global intro
-
+    global intro, objects, state
     intro=True
+    objects.clear()
+    state=""
 
 def startGame():
     global intro, ChosenPlayers, objects, StartTime
@@ -410,49 +441,66 @@ def startGame():
     StartTime = time.time()
     print(StartTime)
 
+
+    tiles.clear()
+    for x in range(0, int(MAP_WIDTH/(TILESIZE+2*LINEWIDTH))):
+        for y in range(0, int(MAP_HEIGHT/(TILESIZE+2*LINEWIDTH))):
+            tiles.append(tile(x, y))
+
     numPlayer = 0
     for player in ChosenPlayers:
         ai1 = importlib.import_module(player[1])
         if numPlayer==0:
-            x = 50
-            y = 50
+            x = LINEWIDTH
+            y = LINEWIDTH
             direction = 270
+            tilecolor=(255,0,0)
         elif numPlayer==1:
             x = 550
             y = 550
             direction=90
+            tilecolor=(0,255,0)
         elif numPlayer==2:
             x = 50
             y = 550
             direction=270
+            tilecolor=(0,0,255)
         elif numPlayer==3:
             x = 550
             y = 50
             direction = 90
+            tilecolor=(255,255,0)
         elif numPlayer==4:
             x = 300
             y = 50
             direction = 0
+            tilecolor=(0,255,255)
         elif numPlayer==5:
             x = 300
             y = 550
             direction = 180
+            tilecolor=(255,0,255)
         elif numPlayer==6:
             x = 50
             y = 300
             direction = 270
+            tilecolor=(255,255,255)
         elif numPlayer==7:
             x = 550
             y = 300
             direction = 90
+            tilecolor=(150,150,150)
         
-        objects.append( object(player[0], x,y, direction, getSurfImg(ai1.AI().image, TILESIZE, TILESIZE), ai1.AI(), 1)) 
+        objects.append( object(player[0], x,y, direction, getSurfImg(ai1.AI().image, TILESIZE, TILESIZE), ai1.AI(), 1, 0,tilecolor)) 
         #print(player[0] + " loaded.")
         numPlayer +=1
+    for o in objects:
+        if o.type==1:
+            o.checkTileCollision(o)
 
 def getSurfImg(imgFile, sizex, sizey):
 
-    sImg = pygame.transform.scale(pygame.image.load("DozerBlue.png").convert_alpha(), (sizex, sizey))
+    sImg = pygame.transform.scale(pygame.image.load("tankblue1.png").convert_alpha(), (sizex, sizey))
     if imgFile != "":
         sImg = pygame.transform.scale(pygame.image.load(imgFile).convert_alpha(), (sizex, sizey))   
     #sImg = pygame.transform.rotate(self.sImg, direction*90)
@@ -460,7 +508,7 @@ def getSurfImg(imgFile, sizex, sizey):
 
 def drawBattlefieldPygame():
     """draws the battlefield with Pygame"""
-    global state, redsquares, bluesquares, bot1img, bot2img, namefont, textfont, ai1name, ai2name, uwimg, walls, rbulimg, bbulimg, textBlob, StartTime
+    global state, redsquares, bluesquares, bot1img, bot2img, namefont, textfont, ai1name, ai2name, uwimg, walls, rbulimg, bbulimg, textBlob, StartTime, tiles
 
     #Get the display surface
     screen = pygame.display.get_surface()
@@ -473,6 +521,9 @@ def drawBattlefieldPygame():
         pygame.draw.line(screen,(50,50,50),(0,i*(TILESIZE+LINEWIDTH*2)),(600,i*(TILESIZE+LINEWIDTH*2)),LINEWIDTH)
         pygame.draw.line(screen,(50,50,50),(i*(TILESIZE+LINEWIDTH*2),0),(i*(TILESIZE+LINEWIDTH*2),600),LINEWIDTH)
 
+    for t in tiles:
+        pygame.draw.rect(screen, t.color, t.rect)
+
     #Objects
     numOfPlayers=0
     numOfAlivePlayers = 0
@@ -481,7 +532,8 @@ def drawBattlefieldPygame():
     for o in objects:
         if o.type==1:
             #Draw the robot's health bars
-            text = font.render(o.name, True, WHITE) 
+            numOfTiles = sum(map(lambda t : t.owner==o.name, tiles))
+            text = font.render(o.name + " TILES: " + str(numOfTiles), True, WHITE) 
             if o.energy > 0:
                 screen.blit(smallfont.render("Health", True, BLACK), pygame.Rect(600,22+ 45*numOfPlayers, 195, 10))
                 pygame.draw.rect(screen,(255,255,0),((600,34+ 45*numOfPlayers),(int(o.energy*195/100.0),10)))
@@ -531,12 +583,60 @@ def drawBattlefieldPygame():
         screen.blit(sInstructions, rectInstructions)
 
         strMsg = "Game Over!"
-        strMsg += " " + winner + " wins.\n"
-        
-        for o in objects:
-            if o.type==1:
-                strMsg += o.name + " energy:" + str(o.energy) + " health:" + str(o.health) + " total:" + str(o.health+o.energy) + "\n"
+        if state=="win":
+            strMsg += " " + winner + " wins.\n"
+        elif state=="tie":
+            players=[]
+            playerTiles=[]    
+            maxTiles=0
+            tileTie=False
+            winners=[]
+            for o in objects:
+                if o.type==1:
+                    players.append(o.name)
+                    numOfTiles = sum(map(lambda t : t.owner==o.name, tiles))
+                    playerTiles.append(numOfTiles)
+                    if numOfTiles > maxTiles:
+                        maxTiles=numOfTiles
+                        winner = o.name
+                    elif maxTiles !=0 and numOfTiles==maxTiles:
+                        tileTie=True
+                        winners.append(o.name)
+                        if winner not in winners:
+                            winners.append(winner)
 
+            if tileTie==False:
+                strMsg += " " + winner + " wins.\n"
+                for i in range(0, len(players)):
+                    strMsg += players[i] + " Tiles:" + str(playerTiles[i]) + "\n"
+            else:
+                players.clear()
+                points = []
+                pointsWinners=[]
+                maxPoints=0
+                pointsTie=False
+                strMsg2=""
+                for o in objects:
+                    if o.type==1 and o.name in winners:
+                        players.append(o.name)
+                        points.append(o.health+o.energy)
+                        if o.health+o.energy > maxPoints:
+                            maxPoints=o.health+o.energy
+                            winner = o.name
+                        elif maxPoints !=0 and o.health+o.energy==maxPoints:
+                            pointsTie=True
+                            pointsWinners.append(o.name)
+                            if winner not in pointsWinners:
+                                pointsWinners.append(winner)
+
+                        strMsg2 += o.name + " energy:" + str(o.energy) + " health:" + str(o.health) + " total:" + str(o.health+o.energy) + "\n"
+                if pointsTie==False:
+                    strMsg += " " + winner + " wins.\n"
+                else:
+                    strMsg += " It is a tie between: "
+                    for w in winners:
+                        strMsg+= w + " "
+                strMsg +=strMsg2
 
         drawText(screen, strMsg, (255,255,255), rectInstructions, instructionFont, aa=True, bkg=(255,255,255))
         button("Play Again",BUTTON1_X, BUTTON1_Y,BUTTON_WIDTH,BUTTON_HEIGHT,GREEN,BRIGHT_GREEN,action=GoToIntro)
