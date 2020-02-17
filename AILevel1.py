@@ -16,4 +16,6 @@ class AI:
             if self.robot.energy > 50:
                 self.robot.dropBomb(enemy)
                 self.robot.moveForward(10)
+        
+
             

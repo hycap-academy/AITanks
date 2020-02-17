@@ -20,6 +20,7 @@ PROJECTILE_VELOCITY=20
 PROJECTILE_DAMAGE=randint(2,4)
 ENERGY_CHARGE_PER_TURN=5
 GAMETIMEOUT=60*5
+SOUND=True
 
 
 
@@ -56,10 +57,17 @@ class tile():
         self.owner = ""
         self.color = (0,0,0)
 
+    def x(self):
+        return self.coordx
+
+    def y(self):
+        return self.coordy
+    
 
 
 class object():
     def __init__(self, name, coordx, coordy, direction, sImg, ai, objType, subType=0, tilecolor=""):
+        global tiles
         self.name = name
         self.initx = coordx
         self.inity = coordy
@@ -84,6 +92,23 @@ class object():
         self.destinationx=0
         self.destinationy=0
         self.tilecolor = tilecolor
+        self.tiles=tiles
+        
+
+    def myTiles(self):
+        global tiles
+        return sum(map(lambda t : t.owner==self.name, tiles))
+
+    def findClosestNewTile(self):
+        global tiles
+        closestDistance = 5000
+        closestTile=None
+        for t in tiles:
+            dis = math.sqrt((self._x-t.x())**2 + (self._y-t.y())**2)
+            if  dis < closestDistance and t.owner!=self.name:
+                closestTile=t
+                closestDistance = dis
+        return closestTile
 
     def getRect(self):
         return pygame.Rect(self._x, self._y, self.surfImg.get_width(), self.surfImg.get_height())
@@ -120,8 +145,8 @@ class object():
             self._y += (-1)*speed * math.cos(math.radians(self.direction)) 
 
             self.bordercheck(self)
-            
-            pygame.mixer.Sound.play(tank_sound)
+            if SOUND:
+                pygame.mixer.Sound.play(tank_sound)
             self.energy-= math.ceil(abs(speed)/2)
             self.checkTileCollision(self)
 
@@ -181,7 +206,8 @@ class object():
             o = object("projectile", self._x,self._y, self.direction+direction, getSurfImg("projectile.png", 10, 10), ai1.AI(), 2)
             o.parentuid=self.uid
             objects.append(o) 
-            pygame.mixer.Sound.play(projectile_sound)
+            if SOUND:
+                pygame.mixer.Sound.play(projectile_sound)
             self.energy -= 10
         else:
             print("Not enough energy to fire Projectile")
@@ -198,7 +224,8 @@ class object():
             o.velocity = dis/60
 
             objects.append(o)
-            pygame.mixer.Sound.play(bomb_sound)
+            if SOUND:
+                pygame.mixer.Sound.play(bomb_sound)
             self.energy -= 40
 
     def repair(self, amount=3):

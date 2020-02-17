@@ -3,6 +3,23 @@ Python Tank AI Instruction
 
 Python Tank AI is a game made in Python where each player creates an AI program and pits their AI program against other players.  The game is created in Python, but the player does not need to be an expert in Python to participate.  
 
+Tournament
+----------
+The first tournament will be held on May 29th, 2020 (Friday).  Location TBD.  Remote participants may submit their AI tank codevia email to donhyun@hycapacademy.com by May 22nd, 2020.  For more information, contact donhyun@hycapacademy.com.
+
+Objective
+---------
+Here is how to win:
+1.  Destroy the other tank by bombing, shooting, or ramming the opponents before the time limit is up.  
+2.  If more than one tank is alive when the time limit is up, the winner is the tank that has claimed the most tiles.
+3.  If active tanks have the same number of tiles, the winner is the tank that has the most energy+health points.
+
+In the case where all active tanks have the same number of tiles and energy+health points, it is a tie.
+
+Time Limit
+----------
+The default time limit is set to 5 minutes, but may be changed for different tournaments/competitions.
+
 Required Skills
 ---------------
 It will help if the player understands some coding fundamentals such as if/then statements and loops.  It will also help if the player understands some geometry such as angle measurements in degrees and the pythagorean theorem.
@@ -38,7 +55,6 @@ self.robot.moveForward(speed)|moves forward or backward.  Speed can be between -
 |self.robot.shieldOn()|turns on your shield.  Shield turns off when you have less than 50 energy points. |Keeping the shield on takes 3 energy points each round|
 |self.robot.repair(points)|repairs your tank.  The number of points you can repair is up to 100.  Player health maximum is 100.|The number of heal points is the number of energy points that it costs|
 
-
 ### Get Information
 |Syntax|Description|Energy Required|
 |------|-----------|---------------|
@@ -48,10 +64,13 @@ self.robot.moveForward(speed)|moves forward or backward.  Speed can be between -
 |self.robot.x() (int 0-600)| tells you x coordinate of your robot. The board is 600x600 | Does not take any energy|
 |self.robot.y() (int 0-600)| tells you y coordinate of your robot. The board is 600x600 | Does not take any energy|
 |self.robot.direction int | tells you direction of your robot in degrees.  0 is North.  90 is facing West.  -90 is Facing East | Does not take any energy|
-|self.robot.energy (int 1-100) | tells you how much energy your robot has| Does not take any energy|
-|self.robot.health (int 1-100) | tells you how much health your robot has| Does not take any energy|
-
+|self.robot.energy (int 1-100) | tells how much energy the player's robot has| Does not take any energy|
+|self.robot.health (int 1-100) | tells how much health the player's robot has| Does not take any energy|
 |self.robot.shield (True/False) | tells you if the shield is on or not| Does not take any energy|
+|tiles = self.robot.tiles | gives you the array of tiles | Does not take any energy |
+|self.robot.myTiles() | returns an integer and tells you how many tiles belong to the player | Does not take any energy |
+|t = self.robot.findClosestNewTile() | returns the closest tile that is now owned by the player.  It's possible to use getDirection and getDistance to get the direction and distance to the tile similar to with an enemy. | Does not take any energy |
+
 
 
 ### Attack
