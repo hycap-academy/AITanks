@@ -71,6 +71,12 @@ self.robot.moveForward(speed)|moves forward or backward.  Speed can be between -
 |self.robot.myTiles() | returns an integer and tells you how many tiles belong to the player | Does not take any energy |
 |t = self.robot.findClosestNewTile() | returns the closest tile that is now owned by the player.  It's possible to use getDirection and getDistance to get the direction and distance to the tile similar to with an enemy. | Does not take any energy |
 
+#### Tile Object
+|Syntax|Description|
+|------|-----------|
+| t.x()| returns the x coordinate of the tile.|
+| t.y()| returns the y coordinate of the tile.|
+| t.player()| returns the owning player of this tile.|
 
 
 ### Attack

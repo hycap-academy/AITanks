@@ -9,8 +9,5 @@ class AI:
 
     def turn(self):
         print("Do Nothing")
-        #t = self.robot.findClosestNewTile()
-        #dir = self.robot.getDirection(t)
-        #dis = self.robot.getDistance(t)
-        #print(dir, dis)
+
             

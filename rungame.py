@@ -62,6 +62,10 @@ class tile():
 
     def y(self):
         return self.coordy
+
+    def player(self):
+        return self.owner
+        
     
 
 
