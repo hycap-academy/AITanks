@@ -5,7 +5,7 @@ Python Tank AI is a game made in Python where each player creates an AI program 
 
 Tournament
 ----------
-The first tournament will be held on May 29th, 2020 (Friday).  Location TBD.  Remote participants may submit their AI tank codevia email to donhyun@hycapacademy.com by May 22nd, 2020.  For more information, contact donhyun@hycapacademy.com.
+The first tournament will be held on May 29th, 2020 (Friday).  Location TBD.  Remote participants may submit their AI tank code via email to donhyun@hycapacademy.com by May 22nd, 2020.  For more information, contact donhyun@hycapacademy.com.
 
 Objective
 ---------
