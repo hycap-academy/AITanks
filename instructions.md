@@ -34,6 +34,12 @@ The best way to get started is to run the game using Visual Studio Code with the
 4. Peek at the other provided AI files to see how they work.  
 5. Create your own AI.
 
+Rules
+-----
+You may read anything that is in the game and incorporate it into your AI algorithm.  Many interfaces are given for your convenience in reading information about objects in play.
+You may only use the listed APIs to take action (e.g. attack, move, etc).  Otherwise, you'd be able to find the opponent and remove all of their health which wouldn't make for a very fun game.
+If you have creative strategies that may be questionable, please contact us and we'll make a rule clarification.
+
 ## Downloading
 
 [Download and Install Git](./InstallGit.md)
