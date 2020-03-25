@@ -59,7 +59,7 @@ self.robot.moveForward(speed)|moves forward or backward.  Speed can be between -
 |Syntax|Description|Energy Required|
 |------|-----------|---------------|
 |self.robot.shieldOn()|turns on your shield.  Shield turns off when you have less than 50 energy points. |Keeping the shield on takes 3 energy points each round|
-|self.robot.repair(points)|repairs your tank.  The number of points you can repair is up to 100.  Player health maximum is 100.|The number of heal points is the number of energy points that it costs|
+|self.robot.repair(points)|repairs your tank.  The number of points you can repair is up to 25.  Player health maximum is 100.|It costs 4 energy points to increment health by 1 point.|
 
 ### Get Information
 |Syntax|Description|Energy Required|
